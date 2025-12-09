@@ -1,6 +1,11 @@
 
 import React from "react";
+import { useState, useEffect, useRef } from "react";
+import { furnitureProducts } from "../../../../assets/Assets";
+import { FaShoppingCart} from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { useBlogs } from "../../../context/BlogContext";
+import { products } from "../../../../assets/Assets";
 const FurnceCollectionSection = () => (
     <section className="bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 py-24">
         <div className="container px-5  mx-auto">
@@ -108,10 +113,6 @@ const FurnceCollectionSection = () => (
         </div>
     </section>
 )
-import { useState, useEffect, useRef } from "react";
-import { furnitureProducts } from "../../../../assets/Assets";
-import { FaSearch, FaHeart, FaShoppingCart, FaUserCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
 const FurnatureItems =()=>{
   const [cartCount, setCartCount] = useState(0);
   const [quantities, setQuantities] = useState(
@@ -248,14 +249,13 @@ const ProductCard = ({ brand, name, image, price, rating, reviews }) => (
         ))}
         <span className="text-gray-600 ml-2">{reviews} Reviews</span>
       </div>
-      <p className="text-xl font-semibold">${price}.00</p>
+      <p className="text-xl font-semibold">₹{price}.00</p>
       <button className="mt-2 w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition">
         Add to Cart
       </button>
     </div>
   </div>
 );
-import { products } from "../../../../assets/Assets";
 const FurnitureGrid = () => {
   return (
     <div className="bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 mx-auto py-12 px-12">
@@ -327,7 +327,6 @@ const BlogsSection = ({ blogs, openComments }) => (
     </div>
   </section>
 );
-
 const HomeContent = () => {
   const { blogs, categories, activeBlog, openComments, closeComments } = useBlogs();
   return (
