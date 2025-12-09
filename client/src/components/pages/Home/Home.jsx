@@ -139,8 +139,8 @@ const Home = () => {
       </section>
     </div>
     <HomeContent/>
-    {/* <Items/>
-    <Cart/> */}
+    {/* <Items/> */}
+    {/* <Cart/> */}
     </BlogsProvider>
     <Footer/>
     </>

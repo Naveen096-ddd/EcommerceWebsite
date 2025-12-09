@@ -172,7 +172,7 @@ const FurnatureItems =()=>{
     </div>
   );
 return (
-    <div className=" bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 mx-auto px-5 py-12">
+    <div className=" bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 mx-auto px-12 py-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-6 flex items-center justify-center">Best Sellers</h1>
         {isOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={() => setIsOpen(false)} >
@@ -225,7 +225,49 @@ const CategoriesSection = ({ categories }) => (
     </div>
   </section>
 );
-
+const ProductCard = ({ brand, name, image, price, rating, reviews }) => (
+  <div className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition">
+    <img src={image} alt={name} className="w-full h-64 object-cover object-center" />
+    <div className="p-4">
+      <h2 className="text-sm text-gray-500">{brand}</h2>
+      <h1 className="text-lg font-medium text-gray-900">{name}</h1>
+      <div className="flex items-center mt-2 mb-2">
+        {[...Array(5)].map((_, i) => (
+          <svg
+            key={i}
+            fill={i < rating ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            className="w-4 h-4 text-indigo-500"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+          </svg>
+        ))}
+        <span className="text-gray-600 ml-2">{reviews} Reviews</span>
+      </div>
+      <p className="text-xl font-semibold">${price}.00</p>
+      <button className="mt-2 w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+);
+import { products } from "../../../../assets/Assets";
+const FurnitureGrid = () => {
+  return (
+    <div className="bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 mx-auto py-12 px-12">
+      <h2 className="text-3xl font-bold mb-6 text-center">Our Furniture Collection</h2>
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {products.map((product, index) => (
+          <ProductCard key={index} {...product} />
+        ))}
+      </div>
+    </div>
+  );
+};
 const BlogsSection = ({ blogs, openComments }) => (
   <section className=" bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 py-24">
     <div className="container mx-auto px-5">
@@ -293,6 +335,7 @@ const HomeContent = () => {
       <FurnceCollectionSection/>
       <CategoriesSection categories={categories} />
       <FurnatureItems/>
+      <FurnitureGrid />
       <BlogsSection blogs={blogs} openComments={openComments} />
       {activeBlog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

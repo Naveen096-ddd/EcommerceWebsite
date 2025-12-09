@@ -52,6 +52,7 @@ import d17 from "./d17.jpg";
 import d18 from "./d18.jpg";
 import d19 from "./d19.jpg";
 import d20 from "./d20.jpg";
+import f1 from "./f1.png";
 
 
 export const homeImages = [a1, a2, a3];
@@ -368,4 +369,38 @@ export const furnitureProducts = [
   { id: 18, name: "Bar Stool", description: "Modern bar stool with footrest", color: "Gray", size: "Small", price: 40000, image: d18 },
   { id: 19, name: "Side Table", description: "Compact side table for living room", color: "Natural", size: "Small", price: 41000, image: d19 },
   { id: 20, name: "Armchair", description: "Cozy armchair with soft upholstery", color: "Beige", size: "Medium", price: 55000, image: d20 },
+];
+export const products = [
+  {
+    brand: "FURNIHOME",
+    name: "Modern Wooden Chair",
+    image: d2,
+    price: 120,
+    rating: 4,
+    reviews: 12,
+  },
+  {
+    brand: "FURNIHOME",
+    name: "Luxury Sofa",
+    image: f1,
+    price: 450,
+    rating: 5,
+    reviews: 24,
+  },
+  {
+    brand: "FURNIHOME",
+    name: "Glass Coffee Table",
+    image: d7,
+    price: 220,
+    rating: 3,
+    reviews: 8,
+  },
+  {
+    brand: "FURNIHOME",
+    name: "Office Desk",
+    image: d4,
+    price: 330,
+    rating: 4,
+    reviews: 15,
+  },
 ];
