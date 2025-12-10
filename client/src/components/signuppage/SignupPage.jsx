@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "tailwindcss/tailwind.css";
+import Header from "../pages/Home/header/Header";
 
 const Admin = () => {
   const [name, setName] = useState("");
@@ -18,9 +19,10 @@ const Admin = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-600 to-indigo-900 p-6">
+    <Header/>
+      <div className=" signup-3d-container min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-600 to-indigo-900 p-6">
         <form
-          className="bg-gradient-to-br from-[#00f7ff]/70 via-[#0066ff]/70 to-[#8a2be2]/70 
+          className="signup-3d-card bg-gradient-to-br from-[#00f7ff]/70 via-[#0066ff]/70 to-[#8a2be2]/70 
           backdrop-blur-xl w-[32rem] p-8 rounded-2xl shadow-2xl shadow-blue-500/40 
           border border-white/20 h-auto"
           onSubmit={handleSubmit}

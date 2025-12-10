@@ -13,6 +13,15 @@ import {
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { DarkMode, WbSunny } from '@mui/icons-material';
+import Dashboard from './userPages/Dashboard';
+import Orders from './userPages/Orders';
+import Wishlist from './userPages/Wishlist';
+import Cart from './userPages/Cart';
+import AccountSettings from './userPages/AccountSettings';
+import Addresses from './userPages/Addresses';
+import PaymentMethod from './userPages/PaymentMethods';
+import Support from './userPages/Support';
+import LiveChat from './userPages/LiveChat';
 const drawerWidth = 240;
 const UserDashboard = () => {
   const [selectedMenuItem, setSelectedMenuItem] = useState('Dashboard');
@@ -146,19 +155,55 @@ const UserDashboard = () => {
             mt: '100px',
             width: '100%',
             transition: 'margin-left 0.3s, width 0.3s',
+            backgroundColor: darkMode ? 'background.default' : 'background.default',
+            color: 'text.primary',
+            minHeight: 'calc(100vh - 100px)',
           }}
         >
           <div style={{ width: '100%' }}>
-            {selectedMenuItem === 'Dashboard' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Dashboard Overview / Home Content</div>}
-            {selectedMenuItem === 'Orders' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Orders</div>}
-            {selectedMenuItem === 'Wishlist' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Wishlist Items</div>}
-            {selectedMenuItem === 'Cart' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Cart Items</div>}
-            {selectedMenuItem === 'AccountSettings' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Account Settings Form</div>}
-            {selectedMenuItem === 'Addresses' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Saved Addresses</div>}
-            {selectedMenuItem === 'PaymentMethods' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Payment Methods</div>}
-            {selectedMenuItem === 'Support' && <div style={{ padding: 20, borderRadius: 8, background: darkMode ? '#1f1f1f' : '#fff' }}>Support / Help Section</div>}
+            {selectedMenuItem === 'Dashboard' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <Dashboard />
+              </Box>
+            )}
+            {selectedMenuItem === 'Orders' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <Orders />
+              </Box>
+            )}
+            {selectedMenuItem === 'Wishlist' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <Wishlist />
+              </Box>
+            )}
+            {selectedMenuItem === 'Cart' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <Cart />
+              </Box>
+            )}
+            {selectedMenuItem === 'AccountSettings' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <AccountSettings />
+              </Box>
+            )}
+            {selectedMenuItem === 'Addresses' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <Addresses />
+              </Box>
+            )}
+            {selectedMenuItem === 'PaymentMethods' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <PaymentMethod />
+              </Box>
+            )}
+            {selectedMenuItem === 'Support' && (
+              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
+                <Support />
+              </Box>
+            )}
           </div>
         </Box>
+        <LiveChat/>
       </Box>
     </ThemeProvider>
   );

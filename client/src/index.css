@@ -24,3 +24,77 @@
   display: flex;
   animation: scroll 50s linear infinite;
 }
+/* For Title Animation */
+.typing {
+  width: 10ch;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  animation: typingLoop 3s steps(10) infinite;
+}
+
+@keyframes typingLoop {
+  0% { width: 0 }
+  40% { width: 10ch } 
+  60% { width: 10ch } 
+  100% { width: 0 }
+}
+
+/* For Sigup animation */
+.signup-3d-container {
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.signup-3d-card {
+  animation: cardEnter 1.5s ease forwards,
+             cardFloat 4s ease-in-out infinite 1.5s,
+             shine 3s ease-in-out infinite;
+  transform-style: preserve-3d;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow:
+    0 0 20px rgba(0, 200, 255, 0.4),
+    0 0 40px rgba(255, 0, 140, 0.3);
+}
+
+@keyframes cardEnter {
+  0% {
+    opacity: 0;
+    transform: rotateX(-35deg) rotateY(25deg) translateY(50px) scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(10deg) rotateY(-10deg) translateY(0) scale(1.03);
+  }
+  100% {
+    transform: rotateX(0deg) rotateY(0deg) scale(1);
+  }
+}
+
+@keyframes cardFloat {
+  0%, 100% {
+    transform: rotateX(0deg) rotateY(0deg) translateY(0);
+  }
+  50% {
+    transform: rotateX(4deg) rotateY(-4deg) translateY(-12px);
+  }
+}
+
+@keyframes shine {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(0, 200, 255, 0.3),
+      0 0 40px rgba(255, 0, 140, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(0, 200, 255, 0.6),
+      0 0 70px rgba(255, 0, 140, 0.4);
+  }
+}

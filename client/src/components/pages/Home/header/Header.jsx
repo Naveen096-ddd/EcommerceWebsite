@@ -9,7 +9,11 @@ const Header = () => {
       <div className="container mx-auto flex justify-between items-center p-4">
         <div className="flex items-center">
           {/* <img src="/logo.png" alt="logo" className="w-12 h-12 mr-4" /> */}
-          <h1 className="text-3xl font-bold">Ecommerce</h1>
+          <div className="flex-shrink-0 w-[20ch] overflow-hidden ">
+            <div className="text-white font-bold text-3xl typing mt-2">
+              Ecommerce
+            </div>
+          </div>
         </div>
         <nav className="hidden md:flex items-center space-x-8 text-lg">
           <Link to="/" className="hover:text-black">Home</Link>

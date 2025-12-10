@@ -53,6 +53,8 @@ import d18 from "./d18.jpg";
 import d19 from "./d19.jpg";
 import d20 from "./d20.jpg";
 import f1 from "./f1.png";
+import { FaCcVisa, FaCcMastercard, FaCcAmex, FaCcDiscover, FaCcDinersClub } from "react-icons/fa";
+import { SiGooglepay, SiPhonepe, SiPaytm, SiAmazonpay,SiRazorpay } from "react-icons/si";
 
 
 export const homeImages = [a1, a2, a3];
@@ -183,79 +185,133 @@ export const categoriesData = [
   },
 ];
 export const categories = [
-    {
-      names:'Leather Sofas',
-      image: c1
-    },
-    {
-      names:'Leatherette Sofas',
-      image:c2
-    },
-    {
-      names:'Fabric Sofas',
-      image: c3
-    },
-    {
-      names:'Reclining Sofas',
-      image: c4
-    },
-    {
-      names:'Dining Sets',
-      image: c5
-    },
-    {
-      names:'Beds',
-      image: c6
-    },
-    {
-      names:'Office Chair',
-      image: c7
-    },
-    {
-      names:'Coffee & Center Tables',
-      image: c8
-    },
-    {
-      names:'Living Chairs',
-      image: c9
-    },
-    {
-      names:'Dining Chairs',
-      image: c10
-    },
-    {
-      names:'Sofa Cum Beds',
-      image: c11
-    },
-    {
-      names:'Bed  Side Tables',
-      image: c12
-    },
-    {
-      names:'Desks',
-      image: c13
-    },
-    {
-      names:'Side & End Tables',
-      image: c14
-    },
-    {
-      names:'Tv Units & Medis Units',
-      image: c15
-    },
-    {
-      names:'Shoe Racks',
-      image: c16
-    },
-    {
-      names:'Study Tables',
-      image: c17
-    },
-    {
-      names:'Dining Storage',
-      image: c18
-    }
-]
+  {
+    names: 'Leather Sofas',
+    image: c1,
+    description: 'Premium leather sofas that combine comfort and style for your living room.',
+    price: 1200,
+    rating: 4.5,
+  },
+  {
+    names: 'Leatherette Sofas',
+    image: c2,
+    description: 'Affordable leatherette sofas with modern designs and easy maintenance.',
+    price: 900,
+    rating: 4.2,
+  },
+  {
+    names: 'Fabric Sofas',
+    image: c3,
+    description: 'Soft and durable fabric sofas that suit any living room decor.',
+    price: 800,
+    rating: 4.3,
+  },
+  {
+    names: 'Reclining Sofas',
+    image: c4,
+    description: 'Comfortable reclining sofas perfect for relaxation and entertainment.',
+    price: 1500,
+    rating: 4.6,
+  },
+  {
+    names: 'Dining Sets',
+    image: c5,
+    description: 'Elegant dining sets to enhance your dining space and family meals.',
+    price: 700,
+    rating: 4.4,
+  },
+  {
+    names: 'Beds',
+    image: c6,
+    description: 'Sturdy and comfortable beds for a restful night’s sleep.',
+    price: 1100,
+    rating: 4.5,
+  },
+  {
+    names: 'Office Chair',
+    image: c7,
+    description: 'Ergonomic office chairs designed for long hours of work.',
+    price: 250,
+    rating: 4.3,
+  },
+  {
+    names: 'Coffee & Center Tables',
+    image: c8,
+    description: 'Stylish coffee and center tables for a modern living room look.',
+    price: 300,
+    rating: 4.2,
+  },
+  {
+    names: 'Living Chairs',
+    image: c9,
+    description: 'Comfortable living chairs in a variety of designs and colors.',
+    price: 200,
+    rating: 4.1,
+  },
+  {
+    names: 'Dining Chairs',
+    image: c10,
+    description: 'Durable dining chairs that complement any dining table.',
+    price: 150,
+    rating: 4.0,
+  },
+  {
+    names: 'Sofa Cum Beds',
+    image: c11,
+    description: 'Multi-functional sofa cum beds perfect for small spaces.',
+    price: 950,
+    rating: 4.4,
+  },
+  {
+    names: 'Bed Side Tables',
+    image: c12,
+    description: 'Compact bedside tables with storage for convenience and style.',
+    price: 120,
+    rating: 4.2,
+  },
+  {
+    names: 'Desks',
+    image: c13,
+    description: 'Modern desks suitable for home offices and study rooms.',
+    price: 350,
+    rating: 4.3,
+  },
+  {
+    names: 'Side & End Tables',
+    image: c14,
+    description: 'Elegant side and end tables to complement sofas and beds.',
+    price: 180,
+    rating: 4.1,
+  },
+  {
+    names: 'TV Units & Media Units',
+    image: c15,
+    description: 'Functional TV and media units to organize your entertainment space.',
+    price: 450,
+    rating: 4.4,
+  },
+  {
+    names: 'Shoe Racks',
+    image: c16,
+    description: 'Practical and stylish shoe racks to keep your entryway organized.',
+    price: 100,
+    rating: 4.0,
+  },
+  {
+    names: 'Study Tables',
+    image: c17,
+    description: 'Durable and ergonomic study tables for students and professionals.',
+    price: 250,
+    rating: 4.3,
+  },
+  {
+    names: 'Dining Storage',
+    image: c18,
+    description: 'Storage units for dining essentials, combining style and functionality.',
+    price: 400,
+    rating: 4.2,
+  },
+];
 export const blogsData = [
   {
     id: 1,
@@ -329,24 +385,24 @@ export const blogsData = [
     likes: "1.9K",
     comments: 10,
   },
-  {
-    id: 9,
-    category: "Outdoor Furniture",
-    title: "How to Maintain Outdoor Wooden Furniture",
-    description: "Keep your outdoor furniture in top condition year-round.",
-    img: blog9,
-    likes: "2.0K",
-    comments: 9,
-  },
-  {
-    id: 10,
-    category: "DIY Furniture",
-    title: "Build Your Own Coffee Table",
-    description: "A simple step-by-step guide for DIY beginners.",
-    img: blog10,
-    likes: "2.1K",
-    comments: 8,
-  },
+  // {
+  //   id: 9,
+  //   category: "Outdoor Furniture",
+  //   title: "How to Maintain Outdoor Wooden Furniture",
+  //   description: "Keep your outdoor furniture in top condition year-round.",
+  //   img: blog9,
+  //   likes: "2.0K",
+  //   comments: 9,
+  // },
+  // {
+  //   id: 10,
+  //   category: "DIY Furniture",
+  //   title: "Build Your Own Coffee Table",
+  //   description: "A simple step-by-step guide for DIY beginners.",
+  //   img: blog10,
+  //   likes: "2.1K",
+  //   comments: 8,
+  // },
 ];
 export const furnitureProducts = [
   { id: 1, name: "Modern Sofa", description: "Comfortable 3-seater sofa with plush cushions", color: ["Gray"], size: "Large", price: 95000, image: d1 },
@@ -404,3 +460,17 @@ export const products = [
     reviews: 15,
   },
 ];
+export   const upiApps = [
+    { name: "GPay", icon: <SiGooglepay size={30} /> },
+    { name: "PhonePe", icon: <SiPhonepe size={30} /> },
+    { name: "Paytm", icon: <SiPaytm size={30} /> },
+    { name: "AmazonPay", icon: <SiAmazonpay size={30} /> },
+    { name: "Razorpay", icon: <SiRazorpay size={30} /> }, 
+];
+export   const cards = [
+    { name: "Visa", icon: <FaCcVisa size={40} /> },
+    { name: "Mastercard", icon: <FaCcMastercard size={40} /> },
+    { name: "Amex", icon: <FaCcAmex size={40} /> },
+    { name: "Discover", icon: <FaCcDiscover size={40} /> },
+    { name: "Diners", icon: <FaCcDinersClub size={40} /> },
+  ];

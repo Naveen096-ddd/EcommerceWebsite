@@ -11,17 +11,20 @@ const Navbar = () => {
       <nav className="h-20  fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2">
           <div className="flex justify-between h-16 ">
-            <div className="flex-shrink-0 flex items-center text-white font-bold text-3xl">
+          <div className="flex-shrink-0 w-[20ch] overflow-hidden ">
+            <div className="text-white font-bold text-3xl typing mt-4">
               Ecommerce
             </div>
-            <div className="hidden md:flex md:space-x-8 items-center text-2xl">
-              <Link to="/"className="block text-white hover:text-black">Home</Link>
-              <Link to="/about"className="block text-white hover:text-black">About Us</Link>
-              <Link to="/shop"className="block text-white hover:text-black">Shop</Link>
-              <Link to="/categories"className="block text-white hover:text-black">Categories</Link>
-              <Link to="/contact"className="block text-white hover:text-black">Contact Us</Link>
-              <Link to="/blog"className="block text-white hover:text-black">Blog</Link>
-            </div>
+          </div>
+          <div className="hidden md:flex md:space-x-8 items-center text-2xl">
+            <Link to="/" className="block text-white hover:text-black">Home</Link>
+            <Link to="/about" className="block text-white hover:text-black">About Us</Link>
+            <Link to="/shop" className="block text-white hover:text-black">Shop</Link>
+            <Link to="/categories" className="block text-white hover:text-black">Categories</Link>
+            <Link to="/contact" className="block text-white hover:text-black">Contact Us</Link>
+            <Link to="/blog" className="block text-white hover:text-black">Blog</Link>
+          </div>
+
             <div className="flex items-center md:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -30,7 +33,7 @@ const Navbar = () => {
                 {isOpen ? "✖" : "☰"}
               </button>
             </div>
-            <div className="hidden flex items-center md:flex md:space-x-4 text-2xl cursor-pointer">
+            <div className=" hidden flex items-center md:flex md:space-x-4 text-2xl cursor-pointer">
               <FaSearch className="text-white hover:text-black" />
               <FaHeart className="text-pink-500" />
               <FaShoppingCart className="text-yellow-300 hover:text-Yellow-500" />
