@@ -1,142 +1,342 @@
-import React from "react";
-import { Line, Pie } from "react-chartjs-2";
-import {Chart as ChartJS,CategoryScale,LinearScale,PointElement,LineElement,ArcElement,Title,Tooltip,Legend,} from "chart.js";
-ChartJS.register(CategoryScale,LinearScale,PointElement,LineElement,ArcElement,Title,Tooltip,Legend);
-const DashboardHome = () => {
-  const orderStatus = [
-    {
-      title: "Modern Chair",
-      deliveryDate: "2025-12-12",
-      cost: "$120",
-      status: "On the Way",
-    },
-    {
-      title: "Luxury Sofa",
-      deliveryDate: "2025-12-15",
-      cost: "$450",
-      status: "Pending",
-    },
-    {
-      title: "Wooden Table",
-      deliveryDate: "2025-12-08",
-      cost: "$220",
-      status: "Delivered",
-    },
-  ];
+import React, { useEffect } from "react";
+import { FaShoppingCart } from "react-icons/fa";
+import { useShop } from "../../../context/ShopContext";
+import { cards, upiApps } from "../../../../assets/Assets";
 
-  const metrics = [
-    { title: "Wishlist Items", value: 4, color: "from-pink-400 to-pink-600" },
-    { title: "Favorite Category", value: "Sofas", color: "from-orange-400 to-orange-600" },
-    { title: "Total Orders", value: 10, color: "from-purple-400 to-purple-600" },
-    { title: "Total Spent", value: "$1,200", color: "from-indigo-400 to-indigo-600" },
-  ];
-
-  const orderData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [
-      {
-        label: "Orders Placed",
-        data: [2, 4, 1, 5, 3, 6],
-        borderColor: "rgb(34,197,94)",
-        backgroundColor: "rgba(34,197,94,0.2)",
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
-
-  const categoryData = {
-    labels: ["Chairs", "Tables", "Sofas", "Beds"],
-    datasets: [
-      {
-        data: [3, 2, 4, 1],
-        backgroundColor: ["#f87171", "#34d399", "#60a5fa", "#fbbf24"],
-      },
-    ],
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Delivered":
-        return "bg-green-100 text-green-800";
-      case "On the Way":
-        return "bg-blue-100 text-blue-800";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  return (
-    <div className="min-h-screen w-full p-6">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Hello, John!</h1>
-      </header>
-      <div className="bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-500 shadow-xl rounded-xl p-4 sm:p-6 mb-6">
-        <h2 className="text-2xl font-bold text-black mb-4 sm:mb-6">Your Orders</h2>
-        <div className="overflow-x-auto lg:overflow-x-hidden rounded-lg shadow-md">
-          <table className="min-w-[600px] w-full table-auto text-left border-separate border-spacing-0 rounded-2xl">
-            <thead>
-              <tr className="bg-white/20 backdrop-blur-md">
-                <th className="px-3 sm:px-6 py-3 text-gray-800 font-semibold uppercase tracking-wide">Title</th>
-                <th className="px-3 sm:px-6 py-3 text-gray-800 font-semibold uppercase tracking-wide">Delivery Date</th>
-                <th className="px-3 sm:px-6 py-3 text-gray-800 font-semibold uppercase tracking-wide">Cost</th>
-                <th className="px-3 sm:px-6 py-3 text-gray-800 font-semibold uppercase tracking-wide">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orderStatus.map((order, index) => (
-                <tr
-                  key={index}
-                  className={`transition transform hover:scale-105 hover:bg-white/10 ${
-                    index % 2 === 0 ? "bg-white/10" : "bg-white/5"
-                  }`}
-                >
-                  <td className="px-3 sm:px-6 py-3 font-semibold text-black">{order.title}</td>
-                  <td className="px-3 sm:px-6 py-3 text-black">{order.deliveryDate}</td>
-                  <td className="px-3 sm:px-6 py-3 font-bold text-black">{order.cost}</td>
-                  <td className="px-3 sm:px-6 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              <tr className="bg-white/20 font-bold text-black">
-                <td className="px-3 sm:px-6 py-3">Total Orders</td>
-                <td className="px-3 sm:px-6 py-3" colSpan={2}></td>
-                <td className="px-3 sm:px-6 py-3 text-cyan-800">{orderStatus.length}</td>
-              </tr>
-            </tbody>
-          </table>
+export default function Home() {
+  const {
+    furnitureProducts,
+    scrollRef1,
+    scrollRef2,
+    isHovered1,
+    getCurrentLocation,
+    setIsHovered1,
+    isHoveredHovered2,
+    setIsHovered2,
+    quantities,
+    increment,
+    decrement,
+    addToCart,
+    handleBuy,
+    buyOpen,
+    setBuyOpen,
+    selectedProduct,
+    buyQuantity,
+    setBuyQuantity,
+    address,
+    setAddress,
+    handling,
+    setHandling,
+    assembly,
+    setAssembly,
+    deliveryDate,
+    setDeliveryDate,
+    paymentMethod,
+    setPaymentMethod,
+    paymentStep,
+    setPaymentStep,
+    placeOrder,
+    selectedCard,
+    setSelectedCard,
+    selectedUPI,
+    setSelectedUPI,
+    validateOrderDetails,
+  } = useShop();
+  useEffect(() => {
+    const el = scrollRef1.current;
+    if (!el) return;
+    let x = 0;
+    const i = setInterval(() => {
+      if (!isHovered1) {
+        x += 1;
+        el.scrollLeft = x;
+        if (x > el.scrollWidth - el.clientWidth) x = 0;
+      }
+    }, 30);
+    return () => clearInterval(i);
+  }, [isHovered1]);
+  useEffect(() => {
+    const el = scrollRef2.current;
+    if (!el) return;
+    let x = 0;
+    const i = setInterval(() => {
+      if (!isHoveredHovered2) {
+        x += 1;
+        el.scrollLeft = x;
+        if (x > el.scrollWidth - el.clientWidth) x = 0;
+      }
+    }, 30);
+    return () => clearInterval(i);
+  }, [isHoveredHovered2]);
+  const renderProductCard = (product) => (
+    <div key={product.id} className="flex-shrink-0 w-64 bg-white text-black rounded-lg shadow-md p-4 hover:scale-105 transition-transform">
+      <img src={product.imageUrl} className="h-40 text-black w-full object-cover rounded mb-3" alt={product.Product_name}/>
+      <h2 className="font-semibold">{product.Product_name}</h2>
+      <p className="text-sm text-gray-500">{product.description}</p>
+      <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-500">Color: {product.color}</span>
+          <span className="text-sm text-gray-500 ml-12">Size: {product.size}</span>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        {metrics.map((card, index) => (
-          <div
-            key={index}
-            className={`bg-gradient-to-r ${card.color} text-white shadow-lg rounded-lg p-5 text-center transform hover:scale-105 transition`}
-          >
-            <h2 className="text-gray-100 font-medium">{card.title}</h2>
-            <p className="text-2xl font-bold mt-2">{card.value}</p>
-          </div>
-        ))}
+     <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center">
+          <button className="px-2 bg-gray-200" onClick={() => decrement(product.id)}>-</button>
+          <span className="mx-2">{quantities[product.id] || 0}</span>
+          <button className="px-2 bg-gray-200" onClick={() => increment(product.id)}>+</button>
+        </div>
+        <div className="text-lg font-semibold">₹{product.price}</div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white shadow rounded-lg p-4 md:col-span-2">
-          <h2 className="text-gray-700 mb-4 font-semibold">Orders Over Time</h2>
-          <Line data={orderData} />
-        </div>
-        <div className="bg-white shadow rounded-lg p-4">
-          <h2 className="text-gray-700 mb-4 font-semibold">Orders by Category</h2>
-          <Pie data={categoryData} />
-        </div>
+
+      <div className="flex justify-between mt-3">
+        <button
+          className="bg-indigo-500 text-white px-3 py-2 rounded"
+          onClick={() => addToCart(product.id)}
+        >
+          <FaShoppingCart />
+        </button>
+        <button
+          className="bg-green-600 text-white px-3 py-2 rounded"
+          onClick={() => handleBuy(product)}
+        >
+          Buy
+        </button>
       </div>
     </div>
   );
-};
+  return (
+    <div className=" dark:bg-black">
+      <div className=" py-12 dark:bg-black">
+        <h1 className="text-4xl font-bold text-center mb-6">Best Sellers</h1>
 
-export default DashboardHome;
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {furnitureProducts.map(renderProductCard)}
+        </div>
+      </div>
+      {buyOpen && selectedProduct && (
+        <div className="fixed inset-0 mt-16 flex text-black justify-end bg-black/50 z-50">
+          <div className="w-96 bg-white h-full p-6 overflow-y-auto shadow-xl">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">
+                {paymentStep === 1
+                  ? "Order Details"
+                  : paymentStep === 2
+                  ? "Payment"
+                  : "Order Summary"}
+              </h2>
+              <button className="text-2xl" onClick={() => setBuyOpen(false)}>
+                ×
+              </button>
+            </div>
+            <span className="text-lg text-black font-bold mt-4">{selectedProduct.Product_name}</span>
+            <img
+              src={selectedProduct.imageUrl}
+              className="w-full h-40 object-cover rounded mt-3"
+              alt=""
+            />
+            {paymentStep === 1 && (
+              <>
+                <label className="font-semibold mt-4 block">Quantity</label>
+                <input
+                  type="number"
+                  min="1"
+                  className="w-full border rounded p-2"
+                  value={buyQuantity}
+                  onChange={(e) => setBuyQuantity(+e.target.value)}
+                  required
+                />
+                <label className="font-semibold mt-4 block">Delivery Address</label>
+                  <button
+                    onClick={getCurrentLocation}
+                    className="w-full bg-blue-600 text-white p-2 rounded mt-2"
+                  >
+                    Use Current Location
+                  </button>
+                  <label className="font-semibold mt-4 block">or other Delivery Address</label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Enter address"
+                    className="border p-2 rounded"
+                  />
+
+                  {address && (
+                    <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                      {address}
+                    </div>
+                  )}
+
+                <label className="block mt-4 font-semibold">Handling Preference</label>
+                <select
+                  className="w-full border p-2 rounded"
+                  value={handling}
+                  onChange={(e) => setHandling(e.target.value)}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="Lift Available">Lift Available</option>
+                  <option value="Carry Using Stairs">Carry Using Stairs</option>
+                  <option value="Fragile Handling">Fragile Handling</option>
+                </select>
+                <label className="block mt-4 font-semibold">Assembly Required</label>
+                <select
+                  className="w-full border p-2 rounded"
+                  value={assembly}
+                  onChange={(e) => setAssembly(e.target.value)}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+                <label className="block mt-4 font-semibold">
+                  Preferred Delivery Date
+                </label>
+                <input
+                  type="date"
+                  className="w-full border p-2 rounded"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
+                  required
+                />
+                <label className="block mt-4 font-semibold">Payment Method</label>
+                <select
+                  className="w-full border p-2 rounded"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  required
+                >
+                  <option value="">Select Payment Method</option>
+                  <option value="UPI">UPI</option>
+                  <option value="CARD">Card</option>
+                  <option value="COD">Cash on Delivery</option>
+                </select>
+
+                {paymentMethod === "UPI" && (
+                  <div className="mt-4">
+                    <p className="font-semibold mb-2">Choose UPI App:</p>
+                    <div className="grid grid-cols-3 gap-3 mb-2">
+                      {upiApps.map((app) => (
+                        <button
+                          key={app.name}
+                          onClick={() => setSelectedUPI(app.name)}
+                          className={`flex flex-col items-center p-2 border rounded-lg transition ${
+                            selectedUPI === app.name
+                              ? "border-blue-500 shadow-lg"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {app.icon}
+                          <span className="text-sm mt-1">{app.name}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="example@upi"
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                )}
+                {paymentMethod === "CARD" && (
+                  <div className="mt-4">
+                    <p className="font-semibold mb-2">Choose Card:</p>
+                    <div className="grid grid-cols-3 gap-3 mb-2">
+                      {cards.map((card) => (
+                        <button
+                          key={card.name}
+                          onClick={() => setSelectedCard(card.name)}
+                          className={`flex flex-col items-center p-2 border rounded-lg transition ${
+                            selectedCard === card.name
+                              ? "border-blue-500 shadow-lg"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {card.icon}
+                          <span className="text-sm mt-1">{card.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {selectedCard && (
+                      <div className="space-y-2 mt-2">
+                        <input
+                          type="text"
+                          placeholder="Card Number"
+                          className="w-full border p-2 rounded"
+                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="MM/YY"
+                            className="w-1/2 border p-2 rounded"
+                          />
+                          <input
+                            type="password"
+                            placeholder="CVV"
+                            className="w-1/2 border p-2 rounded"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {paymentMethod === "COD" && (
+                  <p className="text-green-600 font-semibold mt-2">
+                    You will pay at the time of delivery.
+                  </p>
+                )}
+                <button
+                  className="w-full bg-indigo-600 text-white p-3 rounded mt-6"
+                  onClick={() => {
+                    if (validateOrderDetails()) setPaymentStep(2);
+                  }}
+                >
+                  Proceed To Payment
+                </button>
+              </>
+            )}
+            {paymentStep === 2 && (
+              <>
+                <h2 className="mt-4 text-lg font-semibold">Complete your payment</h2>
+                <p className="mt-2 font-semibold">
+                  Payment Method: {paymentMethod}
+                </p>
+                <button
+                  className="w-full bg-green-600 text-white p-3 rounded mt-6"
+                  onClick={() => setPaymentStep(3)}
+                >
+                  Complete Payment
+                </button>
+              </>
+            )}
+            {paymentStep === 3 && (
+              <>
+                <h2 className="text-2xl font-bold text-center mt-4 mb-4">
+                  Order Summary
+                </h2>
+                <div className="space-y-2 p-4 rounded-lg bg-gray-50">
+                  <p>Product: {selectedProduct.Product_name}</p>
+                  <p>Quantity: {buyQuantity}</p>
+                  <p>Total: ₹{selectedProduct.price * buyQuantity}</p>
+                  <p>Address: {address}</p>
+                  <p>Handling: {handling}</p>
+                  <p>Assembly: {assembly}</p>
+                  <p>Delivery Date: {deliveryDate}</p>
+                  <p>Payment: {paymentMethod}</p>
+                </div>
+                <button
+                  className="w-full mt-6 p-3 rounded-lg bg-purple-600 text-white font-bold"
+                  onClick={placeOrder}
+                >
+                  Place Order
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

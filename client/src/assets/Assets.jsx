@@ -53,10 +53,9 @@ import d18 from "./d18.jpg";
 import d19 from "./d19.jpg";
 import d20 from "./d20.jpg";
 import f1 from "./f1.png";
+import ringtone from "./alert-33762.mp3";
 import { FaCcVisa, FaCcMastercard, FaCcAmex, FaCcDiscover, FaCcDinersClub } from "react-icons/fa";
 import { SiGooglepay, SiPhonepe, SiPaytm, SiAmazonpay,SiRazorpay } from "react-icons/si";
-
-
 export const homeImages = [a1, a2, a3];
 export const shopImages = [
     {
@@ -474,3 +473,5 @@ export   const cards = [
     { name: "Discover", icon: <FaCcDiscover size={40} /> },
     { name: "Diners", icon: <FaCcDinersClub size={40} /> },
   ];
+
+export const ringtones = [ringtone];

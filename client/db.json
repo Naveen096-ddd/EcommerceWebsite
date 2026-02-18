@@ -1,0 +1,91 @@
+{
+  "users": [
+    {
+      "id": "9c6d",
+      "name": "jhon",
+      "email": "jhon@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "1aa2",
+      "name": "Naveen",
+      "email": "jhon@gmail.com",
+      "password": "Jhon@123",
+      "role": "user"
+    },
+    {
+      "id": "08ca",
+      "name": "Naveen M",
+      "email": "naveen.menda96@gmail.com",
+      "password": "Naveen@123",
+      "role": "admin"
+    }
+  ],
+  "orders": [
+    {
+      "id": "f53a",
+      "userId": "1aa2",
+      "product": {
+        "id": 14,
+        "name": "Console Table",
+        "description": "Elegant console table for hallway",
+        "color": "Black",
+        "size": "Medium",
+        "price": 46000,
+        "image": "/src/assets/d14.jpg"
+      },
+      "status": "ACCEPTED",
+      "acceptedBy": "08ca",
+      "address": "abcd",
+      "paymentMethod": "COD",
+      "handling": "Lift Available",
+      "assembly": "Yes",
+      "deliveryDate": "2026-02-11",
+      "quantity": 1,
+      "admin": {
+        "id": "08ca",
+        "name": "Naveen M",
+        "email": "naveen.menda96@gmail.com",
+        "role": "admin"
+      },
+      "user": {
+        "id": "1aa2",
+        "name": "Naveen",
+        "email": "jhon@gmail.com"
+      }
+    },
+    {
+      "id": "68c4",
+      "userId": "1aa2",
+      "product": {
+        "id": 3,
+        "name": "Dining Table",
+        "description": "Spacious dining table for family meals",
+        "color": [
+          "Natural"
+        ],
+        "size": "Large",
+        "price": 78000,
+        "image": "/src/assets/d3.png"
+      },
+      "status": "ACCEPTED",
+      "acceptedBy": "08ca",
+      "address": "abcd",
+      "paymentMethod": "COD",
+      "handling": "Carry Using Stairs",
+      "assembly": "Yes",
+      "deliveryDate": "2026-02-11",
+      "quantity": 1,
+      "admin": {
+        "id": "08ca",
+        "name": "Naveen M",
+        "email": "naveen.menda96@gmail.com"
+      },
+      "user": {
+        "id": "1aa2",
+        "name": "Naveen",
+        "email": "jhon@gmail.com"
+      }
+    }
+  ]
+}

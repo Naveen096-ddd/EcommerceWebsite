@@ -1,209 +1,249 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Box, Drawer, List, ListItemIcon, ListItemText, IconButton,
-  AppBar, Toolbar, Typography, Avatar, Button, CssBaseline, Tooltip,
-  useMediaQuery, useTheme, ListItemButton,
-} from '@mui/material';
-import {
-  Menu as MenuIcon, Home as HomeIcon, ShoppingCart as ShoppingCartIcon,
-  Favorite as FavoriteIcon, AccountCircle as AccountCircleIcon,
-  Payment as PaymentIcon, LocationOn as LocationOnIcon, Help as HelpIcon,
-  Notifications as NotificationsIcon,
-} from '@mui/icons-material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { DarkMode, WbSunny } from '@mui/icons-material';
-import Dashboard from './userPages/Dashboard';
-import Orders from './userPages/Orders';
-import Wishlist from './userPages/Wishlist';
-import Cart from './userPages/Cart';
-import AccountSettings from './userPages/AccountSettings';
-import Addresses from './userPages/Addresses';
-import PaymentMethod from './userPages/PaymentMethods';
-import Support from './userPages/Support';
-import LiveChat from './userPages/LiveChat';
-const drawerWidth = 240;
+import React, { useState, useMemo, useEffect } from "react";
+import {Box,Drawer,List,ListItemButton,ListItemIcon,ListItemText,IconButton,AppBar,Toolbar,Typography,CssBaseline,Tooltip,Menu,MenuItem,Avatar,Badge,InputBase,} from "@mui/material";
+import {Menu as MenuIcon,Home as HomeIcon,ShoppingCart as ShoppingCartIcon,Favorite as FavoriteIcon,AccountCircle as AccountCircleIcon,Payment as PaymentIcon,LocationOn as LocationOnIcon,Help as HelpIcon,Notifications as NotificationsIcon,Brightness4,Brightness7,Search as SearchIcon,Logout as LogoutIcon,} from "@mui/icons-material";
+import { ThemeProvider, createTheme, alpha } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../../app/slices/authSlice";
+import { InputAdornment } from "@mui/material";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
+import Dashboard from "./userPages/Dashboard";
+import Orders from "./userPages/Orders";
+import Wishlist from "./userPages/Wishlist";
+import Cart from "./userPages/Cart";
+import AccountSettings from "./userPages/AccountSettings";
+import Addresses from "./userPages/Addresses";
+import PaymentMethod from "./userPages/PaymentMethods";
+import Support from "./userPages/Support";
+import LiveChat from "./userPages/LiveChat";
+import { getUserDashApi } from "../../../apis/Api";
+const expandedWidth = 240;
+const collapsedWidth = 80;
 const UserDashboard = () => {
-  const [selectedMenuItem, setSelectedMenuItem] = useState('Dashboard');
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [selectedMenuItem, setSelectedMenuItem] = useState("Dashboard");
+  const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [username, setUsername] = useState("John Doe");
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
-    const handleMenuItemClick = (text) => {
-    setSelectedMenuItem(text);
-  };
-
-  const menuItems = [
-    { text: 'Dashboard', icon: <HomeIcon />, tooltip: 'Dashboard Overview' },
-    { text: 'Orders', icon: <ShoppingCartIcon />, tooltip: 'Orders' },
-    { text: 'Wishlist', icon: <FavoriteIcon />, tooltip: 'Wishlist' },
-    { text: 'Cart', icon: <ShoppingCartIcon />, tooltip: 'Cart' },
-    { text: 'AccountSettings', icon: <AccountCircleIcon />, tooltip: 'Account Settings' },
-    { text: 'Addresses', icon: <LocationOnIcon />, tooltip: 'Addresses' },
-    { text: 'PaymentMethods', icon: <PaymentIcon />, tooltip: 'Payment Methods' },
-    { text: 'Support', icon: <HelpIcon />, tooltip: 'Support / Help' },
-  ];
-  const handleToggleSidebar = () => setSidebarVisible(!sidebarVisible);
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/');
-  };
-  const handleToggleDarkMode = () => setDarkMode(!darkMode);
-  const muiTheme = useMemo(() =>
-    createTheme({
-      palette: {
-        mode: darkMode ? 'dark' : 'light',
-        primary: { main: darkMode ? '#90caf9' : '#1976d2' },
-        background: { default: darkMode ? '#121212' : '#f5f5f5' },
-      },
-    }), [darkMode]
+  const dispatch = useDispatch();
+  const [username, setUsername] = useState("");
+  const [role, setRole] = useState("");
+  const openProfileMenu = Boolean(anchorEl);
+  const muiTheme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: darkMode ? "dark" : "light",
+          primary: { main: darkMode ? "#90caf9" : "#1976d2" },
+          background: {
+            default: darkMode ? "#1f1f1f" : "#f5f5f5",
+            paper: darkMode ? "#1e1e1e" : "#fff",
+          },
+        },
+      }),
+    [darkMode]
   );
-
+  const menuItems = [
+    { label: "Dashboard", icon: <HomeIcon /> },
+    { label: "Orders", icon: <ShoppingCartIcon /> },
+    {
+      label: "Cart",
+      icon: (
+        <Badge badgeContent={3} color="error">
+          <ShoppingCartIcon />
+        </Badge>
+      ),
+    },
+    { label: "Wishlist", icon: <FavoriteIcon /> },
+    { label: "Addresses", icon: <LocationOnIcon /> },
+    { label: "PaymentMethods", icon: <PaymentIcon /> },
+    { label: "AccountSettings", icon: <AccountCircleIcon /> },
+    { label: "Support", icon: <HelpIcon /> },
+    {label: "Logout", icon: <LogoutIcon /> },
+  ];
+const handleLogout = () => {
+  dispatch(logout());               
+  localStorage.removeItem("token"); 
+  localStorage.removeItem("role");
+  localStorage.removeItem("email");
+  navigate("/");
+};
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  console.log("Token in UserDashboard:", token);
+  if (!token) {
+    navigate("/");
+    return;
+  }
+  try {
+    const decoded = jwtDecode(token);
+    console.log("Decoded token:", decoded);
+    if (decoded.role !== "user") {
+      navigate("/");
+      return;
+    }
+    setRole(decoded.role);
+    getUserDashApi()
+      .then((res) => {
+        console.log("UserDash:", res.data);
+        if (res.data?.success) {
+          setUsername(res.data.username);
+        }
+        
+      })
+      .catch((err) => {
+        console.error("UserDash API failed:", err);
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          localStorage.removeItem("token");
+          navigate("/");
+        }
+      });
+  } catch (err) {
+    console.error("JWT decode failed:", err);
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+}, [navigate]);
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: "flex" }}>
         <AppBar
           position="fixed"
           sx={{
-            zIndex: (theme) => theme.zIndex.drawer + 1,
-            width: sidebarVisible ? `calc(100% - ${drawerWidth}px)` : '100%',
-            ml: sidebarVisible ? `${drawerWidth}px` : 0,
-            transition: 'width 0.3s, margin-left 0.3s, background 0.3s',
-            background: darkMode ? '#1f1f1f' : 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
-            height: '100px',
+            height: 80,
+            background: darkMode
+              ? "#1f1f1f"
+              : "linear-gradient(90deg, #6a11cb, #2575fc)",
           }}
         >
-          <Toolbar sx={{ marginTop: '20px' }}>
-            <IconButton edge="start" color="inherit" onClick={handleToggleSidebar}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" sx={{ flexGrow: 1, fontSize: isSmallScreen ? "24px" : "30px",marginLeft: '10px' }}>
-              E-Commerce 
+          <Toolbar sx={{ gap: 2 }}>
+            <Typography sx={{ flexGrow: 1 }} variant="h6">
+              Welcome back, {username}!
             </Typography>
-            <IconButton color="inherit" sx={{ width: 50, height: 50 }}><NotificationsIcon /></IconButton>
-            <IconButton color="inherit" sx={{ width: 50, height: 50 }} onClick={handleToggleDarkMode}>
-              {darkMode ? <WbSunny /> : <DarkMode />}
+            <Box
+              sx={{
+                px: 2,
+                py: 0.5,
+                borderRadius: 2,
+                width: 260,
+                background: alpha("#fff", darkMode ? 0.15 : 0.3),
+              }}
+            >
+              <InputBase
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search products..."
+                fullWidth
+                sx={{ color: "#fff" }}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                }
+              />
+            </Box>
+            <IconButton color="inherit">
+              <NotificationsIcon />
             </IconButton>
-            <Button color="inherit" sx={{ fontSize: 18 }} onClick={handleLogout} startIcon={<AccountCircleIcon />}>
-              Logout
-            </Button>
+            <IconButton color="inherit" onClick={() => setDarkMode(!darkMode)}>
+              {darkMode ? <Brightness7 /> : <Brightness4 />}
+            </IconButton>
+            <IconButton color="inherit" onClick={(e) => setAnchorEl(e.currentTarget)}>
+              <Avatar sx={{ width: 32, height: 32 }}>U</Avatar>
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={openProfileMenu} onClose={() => setAnchorEl(null)}>
+              <MenuItem onClick={() => setSelectedMenuItem("AccountSettings")}>
+                My Profile
+              </MenuItem>
+              <MenuItem onClick={() => setSelectedMenuItem("Orders")}>
+                My Orders
+              </MenuItem>
+              <MenuItem onClick={() => setSelectedMenuItem("Wishlist")}>
+                Wishlist
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
           </Toolbar>
         </AppBar>
-        {sidebarVisible && (
-          <Drawer
-            variant="persistent"
-            anchor="left"
-            open={sidebarVisible}
-            sx={{
-              width: drawerWidth,
-              flexShrink: 0,
-              '& .MuiDrawer-paper': {
-                width: drawerWidth,
-                boxSizing: 'border-box',
-                background: darkMode ? '#1e1e1e' : '#fff',
-              },
-              transition: 'background 0.3s'
-            }}
-          >
-            <Toolbar />
-            <Box sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ width: 70, height: 70, mr: 1 }}>{username.charAt(0)}</Avatar>
-                <Typography variant="h6">{username}</Typography>
-              </Box>
-              <List>
-                {menuItems.map((item) => (
-                  <Tooltip key={item.text} title={item.tooltip} placement="right">
-                    <ListItemButton
-                      onClick={() => handleMenuItemClick(item.text)}
-                      selected={selectedMenuItem === item.text}
-                      sx={{
-                        borderRadius: 1,
-                        mb: 1,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          background: 'linear-gradient(to right, #1e3a8a, #3b82f6, #06b6d4)',
-                          color: '#fff',
-                          '& .MuiListItemIcon-root': { color: '#fff' },
-                        },
-                        '&.Mui-selected': {
-                          background: 'linear-gradient(to right, #1e3a8a, #3b82f6, #06b6d4)',
-                          color: '#fff',
-                          '& .MuiListItemIcon-root': { color: '#fff' },
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: selectedMenuItem === item.text ? '#fff' : 'inherit' }}>
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText primary={item.text.replace(/([A-Z])/g, ' $1').trim()} />
-                    </ListItemButton>
-                  </Tooltip>
-                ))}
-              </List>
-            </Box>
-          </Drawer>
-        )}
-        <Box
-          component="main"
+        <Drawer
+          variant="permanent"
           sx={{
-            flexGrow: 1,
-            p: 0,
-            mt: '100px',
-            width: '100%',
-            transition: 'margin-left 0.3s, width 0.3s',
-            backgroundColor: darkMode ? 'background.default' : 'background.default',
-            color: 'text.primary',
-            minHeight: 'calc(100vh - 100px)',
+            width: collapsed ? collapsedWidth : expandedWidth,
+            "& .MuiDrawer-paper": {
+              width: collapsed ? collapsedWidth : expandedWidth,
+              mt: "80px",
+              height: "calc(100vh - 80px)",
+              transition: "0.3s",
+            },
           }}
         >
-          <div style={{ width: '100%' }}>
-            {selectedMenuItem === 'Dashboard' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <Dashboard />
-              </Box>
-            )}
-            {selectedMenuItem === 'Orders' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <Orders />
-              </Box>
-            )}
-            {selectedMenuItem === 'Wishlist' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <Wishlist />
-              </Box>
-            )}
-            {selectedMenuItem === 'Cart' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <Cart />
-              </Box>
-            )}
-            {selectedMenuItem === 'AccountSettings' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <AccountSettings />
-              </Box>
-            )}
-            {selectedMenuItem === 'Addresses' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <Addresses />
-              </Box>
-            )}
-            {selectedMenuItem === 'PaymentMethods' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <PaymentMethod />
-              </Box>
-            )}
-            {selectedMenuItem === 'Support' && (
-              <Box sx={{ borderRadius: 2, p: 2, backgroundColor: 'background.paper', transition: 'background-color 0.3s, color 0.3s' }}>
-                <Support />
-              </Box>
-            )}
-          </div>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+            <IconButton onClick={() => setCollapsed(!collapsed)}>
+              <MenuIcon />
+            </IconButton>
+          </Box>
+          <List>
+            {menuItems.map((item) => (
+              <Tooltip key={item.label} title={collapsed ? item.label : ""} placement="right">
+                <ListItemButton
+                  selected={selectedMenuItem === item.label}
+                  onClick={() =>{if (item.label === "Logout") {
+                      handleLogout();
+                    } else {
+                      setSelectedMenuItem(item.label);
+                    }
+                  }}
+                  sx={{
+                    mx: 1,
+                    mb: 0.5,
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: (theme) =>
+                        alpha(theme.palette.primary.main, 0.12),
+                    },
+                    "&.Mui-selected": {
+                      background: (theme) =>
+                        darkMode
+                          ? "linear-gradient(90deg, #42a5f5, #478ed1)"
+                          : "linear-gradient(90deg, #6a11cb, #2575fc)",
+                      color: "#fff",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                    },
+
+                    "&.Mui-selected:hover": {
+                      background: (theme) =>
+                        darkMode
+                          ? "linear-gradient(90deg, #64b5f6, #5c9ded)"
+                          : "linear-gradient(90deg, #7a1fdc, #3a85ff)",
+                    },
+                    "&.Mui-selected .MuiListItemIcon-root": {
+                      color: "#fff",
+                    },
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  {!collapsed && <ListItemText primary={item.label} />}
+                  
+                </ListItemButton>
+                
+              </Tooltip>
+            ))}
+          </List>
+        </Drawer>
+        <Box component="main" sx={{ flexGrow: 1, p: 3, mt: "80px" }}>
+          {selectedMenuItem === "Dashboard" && <Dashboard search={search} />}
+          {selectedMenuItem === "Orders" && <Orders search={search} />}
+          {selectedMenuItem === "Wishlist" && <Wishlist search={search} />}
+          {selectedMenuItem === "Cart" && <Cart search={search} />}
+          {selectedMenuItem === "AccountSettings" && <AccountSettings />}
+          {selectedMenuItem === "Addresses" && <Addresses />}
+          {selectedMenuItem === "PaymentMethods" && <PaymentMethod />}
+          {selectedMenuItem === "Support" && <Support />}
         </Box>
-        <LiveChat/>
+        <LiveChat />
       </Box>
     </ThemeProvider>
   );
