@@ -90,3 +90,30 @@ export const acceptOrderApi = (data) => {
 export const getOrdersApi = () => {
   return axiosInstance.get("/placeorders");
 }
+export const getOrderDetailsApi = () => {
+  return axiosInstance.get("/orderDetails");
+};
+//Cart
+export const addToCartApi = (data) => {
+  return axiosInstance.post("/addToCart", data);
+};
+export const removeFromCartApi = (cartId) => {
+  return axiosInstance.delete(`/removeFromCart/${cartId}`);
+};
+export const getCartApi = () => {
+  return axiosInstance.get("/getCart");
+};
+// Favorites
+export const addToFavoriteApi = (productId) => {
+  return axiosInstance.post("/addToFavorite", {
+    product_id: productId,
+  });
+};
+
+export const removeFromFavoriteApi = (productId) => {
+  return axiosInstance.delete(`/removeFromFavorite/${productId}`);
+};
+
+export const getFavoritesApi = () => {
+  return axiosInstance.get("/getFavorites");
+};

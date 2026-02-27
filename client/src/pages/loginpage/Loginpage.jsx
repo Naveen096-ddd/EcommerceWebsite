@@ -132,7 +132,7 @@ const Loginpage = () => {
           <div className="relative mb-4">
             <input
               type="text"
-              placeholder="Email"
+              placeholder="Email or Phone Number"
               className="w-full px-4 py-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

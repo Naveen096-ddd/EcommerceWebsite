@@ -41,6 +41,8 @@ export default function Home() {
     selectedUPI,
     setSelectedUPI,
     validateOrderDetails,
+    favorites,
+    toggleFavorite,
   } = useShop();
   useEffect(() => {
     const el = scrollRef1.current;
@@ -68,48 +70,127 @@ export default function Home() {
     }, 30);
     return () => clearInterval(i);
   }, [isHoveredHovered2]);
-  const renderProductCard = (product) => (
-    <div key={product.id} className="flex-shrink-0 w-64 bg-white text-black rounded-lg shadow-md p-4 hover:scale-105 transition-transform">
-      <img src={product.imageUrl} className="h-40 text-black w-full object-cover rounded mb-3" alt={product.Product_name}/>
-      <h2 className="font-semibold">{product.Product_name}</h2>
-      <p className="text-sm text-gray-500">{product.description}</p>
-      <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-500">Color: {product.color}</span>
-          <span className="text-sm text-gray-500 ml-12">Size: {product.size}</span>
-        </div>
-      </div>
-     <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center">
-          <button className="px-2 bg-gray-200" onClick={() => decrement(product.id)}>-</button>
-          <span className="mx-2">{quantities[product.id] || 0}</span>
-          <button className="px-2 bg-gray-200" onClick={() => increment(product.id)}>+</button>
-        </div>
-        <div className="text-lg font-semibold">₹{product.price}</div>
-      </div>
+  const renderProductCard = (product) => {
+    const stock = Number(product.stock ?? 1);
 
-      <div className="flex justify-between mt-3">
-        <button
-          className="bg-indigo-500 text-white px-3 py-2 rounded"
-          onClick={() => addToCart(product.id)}
-        >
-          <FaShoppingCart />
-        </button>
-        <button
-          className="bg-green-600 text-white px-3 py-2 rounded"
-          onClick={() => handleBuy(product)}
-        >
-          Buy
-        </button>
+    return (
+      <div
+        key={product.id}
+        className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200"
+      >
+<button
+  onClick={() => toggleFavorite(product.id)}
+  className={`absolute top-3 right-3 p-2 rounded-full shadow z-10 
+    transition-all duration-300 transform hover:scale-110
+    ${
+      favorites.includes(product.id)
+        ? "bg-red-500 text-white"
+        : "bg-white hover:bg-gray-100"
+    }`}
+>
+  {favorites.includes(product.id) ? "❤️" : "🤍"}
+</button>
+        {product.discount && (
+          <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-3 py-1 rounded-md z-10">
+            {product.discount}% OFF
+          </span>
+        )}
+        <div className="bg-gray-100 h-64 w-full overflow-hidden">
+          <img
+            src={product.imageUrl}
+            alt={product.Product_name}
+            className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+          />
+        </div>
+        <div className="p-5 space-y-3">
+          <h2 className="text-md font-semibold text-gray-800 line-clamp-2 hover:text-indigo-600 cursor-pointer">
+            {product.Product_name}
+          </h2>
+          <div className="flex items-center space-x-2">
+            <div className="text-yellow-400 text-sm">
+              {"★".repeat(product.rating || 4)}
+              {"☆".repeat(5 - (product.rating || 4))}
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl font-bold text-gray-900">
+              ₹{product.price}
+            </span>
+          </div>
+          <div className="text-sm text-gray-600">
+            Get it by{" "}
+            <span className="font-semibold">
+              {product.deliveryDate || "Tomorrow"}
+            </span>
+          </div>
+          <div
+            className={`text-sm font-medium ${
+              stock > 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {stock > 0
+              ? stock < 1
+                ? `Only ${stock} left! 🔥`
+                : `In Stock `
+              : "Out of Stock"}
+          </div>
+
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center border rounded-lg overflow-hidden">
+              <button
+                className="px-3 py-1 bg-gray-100 hover:bg-gray-200"
+                onClick={() => decrement(product.id)}
+              >
+                -
+              </button>
+
+              <span className="px-4">
+                {quantities[product.id] || 0}
+              </span>
+
+              <button
+                className="px-3 py-1 bg-gray-100 hover:bg-gray-200"
+                onClick={() => increment(product.id)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 mt-4">
+            <button
+              disabled={stock <= 0}
+              onClick={() => addToCart(product)}
+              className={`w-full py-2 rounded-full font-semibold transition ${
+                stock > 0
+                  ? "bg-yellow-400 hover:bg-yellow-500 text-black"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              Add to Cart
+            </button>
+
+            <button
+              disabled={stock <= 0}
+              onClick={() => handleBuy(product)}
+              className={`w-full py-2 rounded-full font-semibold transition ${
+                stock > 0
+                  ? "bg-orange-500 hover:bg-orange-600 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              Buy Now
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
   return (
     <div className=" dark:bg-black">
       <div className=" py-12 dark:bg-black">
         <h1 className="text-4xl font-bold text-center mb-6">Best Sellers</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
           {furnitureProducts.map(renderProductCard)}
         </div>
       </div>
@@ -301,6 +382,14 @@ export default function Home() {
               <>
                 <h2 className="mt-4 text-lg font-semibold">Complete your payment</h2>
                 <p className="mt-2 font-semibold">
+                  <span className="text-gray-700">Product: </span>
+                  <span className="text-xl text-green-700">{selectedProduct.Product_name}</span>
+                </p>
+                <p className="mt-1">
+                  <span className="text-gray-700">Total Amount: </span>
+                  <span className="text-xl text-green-700">₹{selectedProduct.price * buyQuantity}</span>
+                </p>
+                <p className="mt-1 text-gray-600">
                   Payment Method: {paymentMethod}
                 </p>
                 <button

@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const router = express.Router();
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -7,7 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const app = express();
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
@@ -22,22 +23,21 @@ const io = new Server(server, {
   }
 });
 app.use(cookieParser());
-require('dotenv').config();
-const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'Naveen',
-  database: 'naveen',
-});
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 //Loginpage
-const jwtSecretKey = "yatayatismdnvlsvnvlefmv";
+const jwtSecretKey = process.env.JWT_SECRET
+// console.log(jwtSecretKey)
+
 app.post('/register', async (req, res) => {
   const { username, password, role, email, phonenumber } = req.body;
-
   try {
     const checkEmailQuery = 'SELECT * FROM loginpage WHERE email = ?';
     db.query(checkEmailQuery, [email], async (err, results) => {
@@ -84,8 +84,8 @@ function sendOTP(email, otp) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "naveenmenda1030@gmail.com",
-      pass: "hgbjxwstyxcwpsmg",
+      user:  process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
  
@@ -220,9 +220,8 @@ app.post('/login', (req, res) => {
     const { email, password } = req.body;
     // console.log(username, password);
  
-    const query = `SELECT * FROM loginpage WHERE email = ?`;
- 
-    db.query(query, [email], async (error, results) => {
+    const query = `SELECT * FROM loginpage WHERE email = ? OR phonenumber = ?`;
+    db.query(query, [email, email], async (error, results) => {
         if (error) {
             res.status(500).json({ success: false, message: 'Database error' });
         } else if (results.length > 0) {
@@ -361,13 +360,9 @@ app.post('/api/location/user', (req, res) => {
     res.status(200).send('User location saved successfully');
   });
 });
-
-
-
 // ================= ADMIN LOCATION =================
 app.post('/api/location/admin', (req, res) => {
   const { username, latitude, longitude, address } = req.body;
-
   const query = `
     INSERT INTO ecommerce_admin (username, latitude, longitude, address)
     VALUES (?, ?, ?, ?)
@@ -407,9 +402,6 @@ app.get('/api/location/admin/:username', (req, res) => {
     res.status(200).json(result[0]);
   });
 });
-
-
-
 // ================= GET NEARBY ADMINS =================
 app.get('/api/nearby-admins', (req, res) => {
   const { latitude, longitude, kms } = req.query;
@@ -442,20 +434,15 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Radius of Earth in KM
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
-
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(lat1 * (Math.PI / 180)) *
       Math.cos(lat2 * (Math.PI / 180)) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
   return R * c;
 }
-
-
 // ================= PLACE ORDER =================
 function generateOrderId(length = 8) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -479,35 +466,35 @@ app.post("/acceptOrder", (req, res) => {
       return res.status(404).send("Order not found");
     }
     const order = orderResult[0];
-    const customerUsername = order.username;
     const randomId = generateOrderId();
     const insertQuery = `
       INSERT INTO order_details
-      (order_id, customer_username, product_id, quantity, pickup_address, admin_username)
-      VALUES (?, ?, ?, ?, ?, ?)
+      (order_id, customer_username, product_id, quantity, pickup_address, admin_username, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
+
     db.query(
       insertQuery,
       [
         randomId,
-        customerUsername,
+        order.username,
         order.product_id,
         order.quantity,
         order.address,
-        adminUsername
+        adminUsername,
+        "accepted"
       ],
-      (err, result) => {
+      (err) => {
         if (err) {
           console.error(err);
           return res.status(500).send("Error saving accepted order");
         }
+        db.query(
+          `UPDATE placeorder_details SET status = 'ACCEPTED' WHERE id = ?`,
+          [orderId]
+        );
+        io.emit("orderUpdated");
 
-        const updateQuery = `
-          UPDATE placeorder_details 
-          SET status = 'accepted'
-          WHERE id = ?
-        `;
-        db.query(updateQuery, [orderId]);
         res.status(200).json({
           message: "Order accepted successfully",
           generatedId: randomId
@@ -516,64 +503,6 @@ app.post("/acceptOrder", (req, res) => {
     );
   });
 });
-// app.post("/acceptOrder", (req, res) => {
-//   const { orderId, adminUsername, } = req.body;
-
-//   // 1️⃣ Get order from placeorder_details
-//   const getOrderQuery = `
-//     SELECT * FROM placeorder_details WHERE id = ?
-//   `;
-
-//   db.query(getOrderQuery, [orderId], (err, orderResult) => {
-//     if (err) {
-//       console.error(err);
-//       return res.status(500).send("Error fetching order");
-//     }
-//     if (orderResult.length === 0) {
-//       return res.status(404).send("Order not found");
-//     }
-    
-//     const order = orderResult[0];
-//     // console.log("ORDER DATA:", order);
-//     const customerUsername = order.username;  
-//     const insertQuery = `
-//       INSERT INTO order_details
-//       (user_id, customer_username, product_id, quantity, pickup_address, admin_username)
-//       VALUES (?, ?, ?, ?, ?, ?)
-//     `;
-
-//     db.query(
-//       insertQuery,
-//       [
-//         order.id,
-//         customerUsername,
-//         order.product_id,
-//         order.quantity,
-//         order.address,
-//         adminUsername
-//       ],
-//       (err, result) => {
-//         if (err) {
-//           console.error(err);
-//           return res.status(500).send("Error saving accepted order");
-//         }
-
-//         // 3️⃣ Update status in placeorder_details
-//         const updateQuery = `
-//           UPDATE placeorder_details 
-//           SET status = 'accepted'
-//           WHERE id = ?
-//         `;
-
-//         db.query(updateQuery, [orderId]);
-
-//         res.status(200).json({
-//           message: "Order accepted successfully"
-//         });
-//       }
-//     );
-//   });
-// });
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
   socket.on('registerAdmin', (data) => {
@@ -629,6 +558,38 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
+  });
+});
+app.get("/orderDetails", verifyToken, (req, res) => {
+  const username = req.user.username;
+  const query = `
+    SELECT 
+      od.id,
+      od.order_id,
+      od.quantity,
+      od.status,
+      od.pickup_address,
+      od.created_at,
+      p.id AS product_id,
+      p.image,
+      p.Product_name,
+      p.description,
+      p.color,
+      p.size,
+      p.price
+    FROM order_details od
+    JOIN products p ON od.product_id = p.id
+    WHERE od.customer_username = ?
+    ORDER BY od.id DESC
+  `;
+
+  db.query(query, [username], (err, result) => {
+    if (err) {
+      console.error("Join Error:", err);
+      return res.status(500).json({ error: "Failed to fetch order details" });
+    }
+
+    res.status(200).json(result);
   });
 });
 //order placed afterpayment success
@@ -689,7 +650,6 @@ app.post("/placeorder", verifyToken, (req, res) => {
     }
   );
 });
-
 // Get all placed orders (Admin side)
 app.get("/placeorders", verifyToken, (req, res) => {
   const query = `
@@ -707,9 +667,165 @@ app.get("/placeorders", verifyToken, (req, res) => {
     res.status(200).json(results);
   });
 });
+//Cart
+app.post("/addToCart", verifyToken, (req, res) => {
+  const { productId, quantity } = req.body;
+  const username = req.user.username;
+  const sql = `
+    INSERT INTO cart (username, product_id, quantity)
+    VALUES (?, ?, ?)
+  `;
+  db.query(sql, [username, productId, quantity], (err) => {
+    if (err) {
+      console.error("Cart Insert Error:", err);
+      return res.status(500).json({ success: false });
+    }
+    res.json({ success: true, message: "Added to cart" });
+  });
+});
+app.delete("/removeFromCart/:cartId", verifyToken, (req, res) => {
+  const cartId = req.params.cartId;
+  const username = req.user.username;
 
+  const sql = `
+    DELETE FROM cart 
+    WHERE id = ? AND username = ?
+  `;
 
+  db.query(sql, [cartId, username], (err, result) => {
+    if (err) {
+      console.error("Delete cart error:", err);
+      return res.status(500).json({ success: false });
+    }
 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.json({ success: true, message: "Item removed from cart" });
+  });
+});
+app.get("/getCart", verifyToken, (req, res) => {
+  const username = req.user.username;
+
+  const sql = `
+    SELECT 
+      cart.id AS cart_id,
+      cart.quantity,
+      products.id AS product_id,
+      products.Product_name,
+      products.description,
+      products.price,
+      products.image
+    FROM cart
+    JOIN products ON cart.product_id = products.id
+    WHERE cart.username = ?
+  `;
+
+  db.query(sql, [username], (err, results) => {
+    if (err) {
+      console.error("Get cart error:", err);
+      return res.status(500).json({ success: false });
+    }
+
+    res.json({ success: true, cartItems: results });
+  });
+});
+//favorates
+app.post("/addToFavorite", verifyToken, (req, res) => {
+  const username = req.user.username;
+  const { product_id } = req.body;
+
+  if (!product_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Product ID required",
+    });
+  }
+
+  const query = `
+    INSERT INTO favorites (username, product_id)
+    VALUES (?, ?)
+  `;
+
+  db.query(query, [username, product_id], (err) => {
+    if (err) {
+      if (err.code === "ER_DUP_ENTRY") {
+        return res.json({
+          success: false,
+          message: "Already added ❤️",
+        });
+      }
+
+      console.log("Insert Favorite Error:", err);
+      return res.status(500).json({
+        success: false,
+        error: err,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Added to favorites ❤️",
+    });
+  });
+});
+app.delete("/removeFromFavorite/:product_id", verifyToken, (req, res) => {
+  const username = req.user.username;
+  const { product_id } = req.params;
+
+  const query = `
+    DELETE FROM favorites
+    WHERE username = ? AND product_id = ?
+  `;
+
+  db.query(query, [username, product_id], (err) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: err,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Removed from favorites",
+    });
+  });
+});
+app.get("/getFavorites", verifyToken, (req, res) => {
+  const username = req.user.username;
+
+  const query = `
+    SELECT 
+      p.id,
+      p.Product_name,
+      p.description,
+      p.color,
+      p.size,
+      p.price,
+      p.image
+    FROM favorites f
+    INNER JOIN products p 
+      ON f.product_id = p.id
+    WHERE f.username = ?
+  `;
+
+  db.query(query, [username], (err, result) => {
+    if (err) {
+      console.log("Get Favorites Error:", err);
+      return res.status(500).json({
+        success: false,
+        error: err,
+      });
+    }
+
+    res.json({
+      success: true,
+      favorites: result,
+    });
+  });
+});
 
 
 
