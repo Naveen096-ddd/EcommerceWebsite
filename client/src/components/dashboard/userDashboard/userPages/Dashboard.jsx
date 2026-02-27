@@ -78,18 +78,18 @@ export default function Home() {
         key={product.id}
         className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200"
       >
-<button
-  onClick={() => toggleFavorite(product.id)}
-  className={`absolute top-3 right-3 p-2 rounded-full shadow z-10 
-    transition-all duration-300 transform hover:scale-110
-    ${
-      favorites.includes(product.id)
-        ? "bg-red-500 text-white"
-        : "bg-white hover:bg-gray-100"
-    }`}
->
-  {favorites.includes(product.id) ? "❤️" : "🤍"}
-</button>
+      <button
+        onClick={() => toggleFavorite(product.id)}
+        className={`absolute top-3 right-3 p-2 rounded-full shadow z-10 
+          transition-all duration-300 transform hover:scale-110
+          ${
+            favorites.includes(product.id)
+              ? "bg-red-500 text-white"
+              : "bg-white hover:bg-gray-100"
+          }`}
+      >
+        {favorites.includes(product.id) ? "❤️" : "🤍"}
+      </button>
         {product.discount && (
           <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-3 py-1 rounded-md z-10">
             {product.discount}% OFF

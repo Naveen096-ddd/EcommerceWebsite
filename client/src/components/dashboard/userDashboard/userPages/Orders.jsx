@@ -18,8 +18,6 @@ const OrdersTable = () => {
 
   useEffect(() => {
     fetchOrders();
-
-    // 🔥 Real-time listener
     socket.on("orderUpdated", () => {
       fetchOrders();
     });
@@ -42,21 +40,25 @@ const OrdersTable = () => {
       {/* ✅ Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-400">
             <tr>
               <th className="py-3 px-6 text-left">Order ID</th>
               <th className="py-3 px-6 text-left">Product</th>
               <th className="py-3 px-6 text-left">Qty</th>
-              <th className="py-3 px-6 text-left">Total</th>
+              <th className="py-3 px-6 text-left">Color</th>
+              <th className="py-3 px-6 text-left">Size</th>
+              <th className="py-3 px-6 text-left">Total Price</th>
               <th className="py-3 px-6 text-left">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
+              <tr key={order.id} className="hover:bg-gray-600">
                 <td className="py-4 px-6">{order.order_id}</td>
                 <td className="py-4 px-6">{order.Product_name}</td>
                 <td className="py-4 px-6">{order.quantity}</td>
+                <td className="py-4 px-6">{order.color}</td>
+                <td className="py-4 px-6">{order.size}</td>
                 <td className="py-4 px-6">
                   {formatPrice(order.price * order.quantity)}
                 </td>
@@ -76,8 +78,6 @@ const OrdersTable = () => {
           </tbody>
         </table>
       </div>
-
-      {/* ✅ Mobile Card View */}
       <div className="md:hidden space-y-4">
         {orders.map((order) => (
           <div

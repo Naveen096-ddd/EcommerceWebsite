@@ -36,46 +36,110 @@ const db = mysql.createPool({
 const jwtSecretKey = process.env.JWT_SECRET
 // console.log(jwtSecretKey)
 
-app.post('/register', async (req, res) => {
+// app.post('/register', async (req, res) => {
+//   const { username, password, role, email, phonenumber } = req.body;
+//   try {
+//     const checkEmailQuery = 'SELECT * FROM loginpage WHERE email = ?';
+//     db.query(checkEmailQuery, [email], async (err, results) => {
+//       if (err) {
+//         return res.status(500).json({ success: false, message: 'Error checking email' });
+//       }
+//       if (results.length > 0) {
+//         return res.status(400).json({ success: false, message: 'Email is already registered' });
+//       }
+//       const checkUsernameQuery = 'SELECT * FROM loginpage WHERE username = ?';
+//       db.query(checkUsernameQuery, [username], async (err, usernameResults) => {
+//         if (err) {
+//           return res.status(500).json({ success: false, message: 'Error checking username' });
+//         }
+//         if (usernameResults.length > 0) {
+//           return res.status(400).json({ success: false, message: 'Username is already taken' });
+//         }
+//         const hashedPassword = await bcrypt.hash(password, 10);
+//         const insertQuery = 'INSERT INTO loginpage (username, password, role, email, phonenumber) VALUES (?, ?, ?, ?, ?)';
+//         db.query(insertQuery, [username, hashedPassword, role, email, phonenumber], (err, result) => {
+//           if (err) {
+//             return res.status(500).json({ success: false, message: 'Error inserting data' });
+//           }
+//           return res.status(201).json({
+//               success: true,
+//               message: "Signup successful 🎉",
+//           });
+//         });
+
+//       });
+//     });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: 'Error processing request' });
+//   }
+// });
+app.post("/register", async (req, res) => {
   const { username, password, role, email, phonenumber } = req.body;
+  if (!username || !password || !email || !role || !phonenumber) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
   try {
-    const checkEmailQuery = 'SELECT * FROM loginpage WHERE email = ?';
-    db.query(checkEmailQuery, [email], async (err, results) => {
-      if (err) {
-        return res.status(500).json({ success: false, message: 'Error checking email' });
-      }
-
-      if (results.length > 0) {
-        return res.status(400).json({ success: false, message: 'Email is already registered' });
-      }
-
-      const checkUsernameQuery = 'SELECT * FROM loginpage WHERE username = ?';
-      db.query(checkUsernameQuery, [username], async (err, usernameResults) => {
-        if (err) {
-          return res.status(500).json({ success: false, message: 'Error checking username' });
+    const checkQuery = `SELECT email, username, phonenumber FROM loginpage WHERE email = ? OR username = ? OR phonenumber = ?`;
+    db.query(checkQuery,[email, username, phonenumber],
+      async (err, results) => {if (err) {
+          return res.status(500).json({
+            success: false,
+            message: "Database error",
+          });
         }
-
-        if (usernameResults.length > 0) {
-          return res.status(400).json({ success: false, message: 'Username is already taken' });
+        for (let user of results) {
+          if (user.email === email) {
+            return res.status(400).json({
+              success: false,
+              field: "email",
+              message: "Email is already registered",
+            });
+          }
+          if (user.username === username) {
+            return res.status(400).json({
+              success: false,
+              field: "username",
+              message: "Username is already taken",
+            });
+          }
+          if (user.phonenumber === phonenumber) {
+            return res.status(400).json({
+              success: false,
+              field: "phonenumber",
+              message: "Phone number is already registered",
+            });
+          }
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertQuery = 'INSERT INTO loginpage (username, password, role, email, phonenumber) VALUES (?, ?, ?, ?, ?)';
-        db.query(insertQuery, [username, hashedPassword, role, email, phonenumber], (err, result) => {
-          if (err) {
-            return res.status(500).json({ success: false, message: 'Error inserting data' });
-          }
-          return res.status(201).json({
+        const insertQuery = `INSERT INTO loginpage (username, password, role, email, phonenumber) VALUES (?, ?, ?, ?, ?)`;
+        db.query(
+          insertQuery,
+          [username, hashedPassword, role, email, phonenumber],
+          (err, result) => {
+            if (err) {
+              return res.status(500).json({
+                success: false,
+                message: "Error inserting data",
+              });
+            }
+            return res.status(201).json({
               success: true,
               message: "Signup successful 🎉",
-          });
-        });
-      });
-    });
+            });
+          }
+        );
+      }
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error processing request' });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
-
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000);
 }
@@ -561,8 +625,8 @@ io.on('connection', (socket) => {
   });
 });
 app.get("/orderDetails", verifyToken, (req, res) => {
-  const username = req.user.username;
-  const query = `
+  const { username, role } = req.user;
+  let query = `
     SELECT 
       od.id,
       od.order_id,
@@ -579,16 +643,21 @@ app.get("/orderDetails", verifyToken, (req, res) => {
       p.price
     FROM order_details od
     JOIN products p ON od.product_id = p.id
-    WHERE od.customer_username = ?
-    ORDER BY od.id DESC
   `;
-
-  db.query(query, [username], (err, result) => {
+  let values = [];
+  if (role === "admin") {
+    query += " WHERE od.admin_username = ?";
+    values.push(username);
+  } else {
+    query += " WHERE od.customer_username = ?";
+    values.push(username);
+  }
+  query += " ORDER BY od.id DESC";
+  db.query(query, values, (err, result) => {
     if (err) {
       console.error("Join Error:", err);
       return res.status(500).json({ error: "Failed to fetch order details" });
     }
-
     res.status(200).json(result);
   });
 });

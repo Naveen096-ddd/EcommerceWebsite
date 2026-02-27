@@ -81,7 +81,6 @@ useEffect(() => {
     navigate("/");
     return;
   }
-
   try {
     const decoded = jwtDecode(token);
     console.log("Decoded token:", decoded);
@@ -90,9 +89,7 @@ useEffect(() => {
       navigate("/");
       return;
     }
-
     setRole(decoded.role);
-
     getAdminDashApi()
       .then((res) => {
         console.log("AdminDash:", res.data);
@@ -285,20 +282,7 @@ useEffect(() => {
                 <Home/>
             </Box>
           )}
-          {selectedMenuItem === "Orders" && (
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                background: darkMode ? "#1f1f1f" : "#fff",
-              }}
-            >
-              <Typography variant="h5">Orders Management</Typography>
-              
-                View all orders, filter by status, manage shipments.
-              <Orders/>
-            </Box>
-          )}
+          {selectedMenuItem === "Orders" && <Orders  />}
           {selectedMenuItem === "Products" && (
             <Box
               sx={{

@@ -40,7 +40,7 @@ const Wishlist = ({ darkMode }) => {
       className={`min-h-screen px-4 sm:px-8 py-10 ${
         darkMode
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white"
-          : "bg-gradient-to-br from-gray-100 via-white to-gray-200 text-gray-900"
+          : " text-gray-600"
       }`}
     >
       <h2 className="text-4xl font-extrabold mb-12 text-center">

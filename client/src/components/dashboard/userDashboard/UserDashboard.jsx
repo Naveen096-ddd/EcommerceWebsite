@@ -17,7 +17,7 @@ import Addresses from "./userPages/Addresses";
 import PaymentMethod from "./userPages/PaymentMethods";
 import Support from "./userPages/Support";
 import LiveChat from "./userPages/LiveChat";
-import { getUserDashApi } from "../../../apis/Api";
+import { getUserDashApi,getCartApi } from "../../../apis/Api";
 const expandedWidth = 240;
 const collapsedWidth = 80;
 const UserDashboard = () => {
@@ -30,6 +30,7 @@ const UserDashboard = () => {
   const dispatch = useDispatch();
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
+  const [cartCount, setCartCount] = useState(0);
   const openProfileMenu = Boolean(anchorEl);
   const muiTheme = useMemo(
     () =>
@@ -51,7 +52,12 @@ const UserDashboard = () => {
     {
       label: "Cart",
       icon: (
-        <Badge badgeContent={3} color="error">
+       <Badge
+          badgeContent={cartCount}
+          color="error"
+          overlap="circular"
+          invisible={cartCount === 0}
+        >
           <ShoppingCartIcon />
         </Badge>
       ),
@@ -63,49 +69,67 @@ const UserDashboard = () => {
     { label: "Support", icon: <HelpIcon /> },
     {label: "Logout", icon: <LogoutIcon /> },
   ];
-const handleLogout = () => {
-  dispatch(logout());               
-  localStorage.removeItem("token"); 
-  localStorage.removeItem("role");
-  localStorage.removeItem("email");
-  navigate("/");
-};
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  console.log("Token in UserDashboard:", token);
-  if (!token) {
+  const handleLogout = () => {
+    dispatch(logout());               
+    localStorage.removeItem("token"); 
+    localStorage.removeItem("role");
+    localStorage.removeItem("email");
     navigate("/");
-    return;
-  }
-  try {
-    const decoded = jwtDecode(token);
-    console.log("Decoded token:", decoded);
-    if (decoded.role !== "user") {
+  };
+//getCart count from getCartApi
+  const fetchCartCount = async () => {
+    try {
+      const res = await getCartApi();
+      if (res.data?.success) {
+        const items = res.data.cartItems || [];
+        const totalCount = items.reduce(
+          (sum, item) => sum + (item.quantity || 1),
+          0
+        );
+        setCartCount(totalCount);
+      }
+    } catch (err) {
+      console.error("Cart count API failed:", err);
+    }
+  };
+  useEffect(() => {
+    fetchCartCount();
+  }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("Token in UserDashboard:", token);
+    if (!token) {
       navigate("/");
       return;
     }
-    setRole(decoded.role);
-    getUserDashApi()
-      .then((res) => {
-        console.log("UserDash:", res.data);
-        if (res.data?.success) {
-          setUsername(res.data.username);
-        }
-        
-      })
-      .catch((err) => {
-        console.error("UserDash API failed:", err);
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          localStorage.removeItem("token");
-          navigate("/");
-        }
-      });
-  } catch (err) {
-    console.error("JWT decode failed:", err);
-    localStorage.removeItem("token");
-    navigate("/");
-  }
-}, [navigate]);
+    try {
+      const decoded = jwtDecode(token);
+      console.log("Decoded token:", decoded);
+      if (decoded.role !== "user") {
+        navigate("/");
+        return;
+      }
+      setRole(decoded.role);
+      getUserDashApi()
+        .then((res) => {
+          console.log("UserDash:", res.data);
+          if (res.data?.success) {
+            setUsername(res.data.username);
+          }
+        })
+        .catch((err) => {
+          console.error("UserDash API failed:", err);
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            localStorage.removeItem("token");
+            navigate("/");
+          }
+        });
+    } catch (err) {
+      console.error("JWT decode failed:", err);
+      localStorage.removeItem("token");
+      navigate("/");
+    }
+  }, [navigate]);
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
@@ -234,10 +258,10 @@ useEffect(() => {
           </List>
         </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3, mt: "80px" }}>
-          {selectedMenuItem === "Dashboard" && <Dashboard search={search} />}
+          {selectedMenuItem === "Dashboard" && <Dashboard search={search}  refreshCart={fetchCartCount} />}
           {selectedMenuItem === "Orders" && <Orders search={search} />}
           {selectedMenuItem === "Wishlist" && <Wishlist search={search} />}
-          {selectedMenuItem === "Cart" && <Cart search={search} />}
+          {selectedMenuItem === "Cart" && <Cart search={search}  refreshCart={fetchCartCount} />}
           {selectedMenuItem === "AccountSettings" && <AccountSettings />}
           {selectedMenuItem === "Addresses" && <Addresses />}
           {selectedMenuItem === "PaymentMethods" && <PaymentMethod />}
